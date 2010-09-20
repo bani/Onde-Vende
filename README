@@ -1,0 +1,3 @@
+Bot de Twitter para realizar busca de produtos através da API do BuscaPé.
+
+Utiliza a biblioteca de OAuth disponível em http://github.com/mikeknapp/AppEngine-OAuth-Library
