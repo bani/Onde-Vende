@@ -1,25 +1,4 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin/env python
-#
-# This is an sample AppEngine application that shows how to 1) log in a user
-# using the Twitter OAuth API and 2) extract their timeline.
-#
-# INSTRUCTIONS: 
-#
-# 1. Set up a new AppEngine application using this file, let's say on port 
-# 8080. Rename this file to main.py, or alternatively modify your app.yaml 
-# file.)
-# 2. Fill in the application ("consumer") key and secret lines below.
-# 3. Visit http://localhost:8080 and click the "login" link to be redirected
-# to Twitter.com.
-# 4. Once verified, you'll be redirected back to your app on localhost and
-# you'll see some of your Twitter user info printed in the browser.
-# 5. Copy and paste the token and secret info into this file, replacing the 
-# default values for user_token and user_secret. You'll need the user's token 
-# & secret info to interact with the Twitter API on their behalf from now on.
-# 6. Finally, visit http://localhost:8080/timeline to see your twitter 
-# timeline.
-#
 
 __author__ = "Vanessa Sabino"
 
@@ -57,17 +36,13 @@ class MainHandler(webapp.RequestHandler):
         
         lastTweet = db.GqlQuery("SELECT * FROM LastTweet").fetch(1)[0]
         params = {}
-        if lastTweet:
-            params["since_id"] = lastTweet.tweetId
+        params["since_id"] = lastTweet.tweetId
             
         mentions_url = "http://api.twitter.com/statuses/mentions.json"
         result = client.make_request(url=mentions_url, token=keys.ondevende['user_token'], 
         secret=keys.ondevende['user_secret'], additional_params=params, method=urlfetch.GET)
         
         statuses = simplejson.loads(result.content)
-        if statuses:
-            if not lastTweet:
-                lastTweet = LastTweet() 
  
         for status in statuses:
             id = status["id"]
@@ -75,8 +50,9 @@ class MainHandler(webapp.RequestHandler):
             msg = self.getBestPrice(status["text"])
             self.postTweet(id, user + msg)
             
-        lastTweet.tweetId = statuses[0]["id"]
-        lastTweet.put()
+        if statuses:
+            lastTweet.tweetId = statuses[0]["id"]
+            lastTweet.put()
        
     def getBestPrice(self, status):
         logging.info("Processando: %s", status)
