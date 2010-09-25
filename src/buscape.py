@@ -78,14 +78,18 @@ class MainHandler(webapp.RequestHandler):
         keyword = urllib.quote(status)
         buscapeUrl = "http://sandbox.buscape.com/service/findOfferList/%s/?keyword=%s&sort=price&format=json" % (keys.buscape_id, keyword)
 
-        try: 
+        try:
             result = urlfetch.fetch(url=buscapeUrl)
-            buscapeData = simplejson.loads(result.content)
+            buscapeData = simplejson.loads(result.content.decode("utf-8"))
             
             price = buscapeData["offer"][0]["offer"]["price"]["value"].replace(".",",")
             store = buscapeData["offer"][0]["offer"]["seller"]["sellername"]
+            link = buscapeData["offer"][0]["offer"]["links"][0]["link"]["url"]
+           
+            bitlyUrl = "http://api.bit.ly/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=txt" % (keys.bitly_login, keys.bitly_key, urllib.quote(link.strip()))
+            shortenedLink = urlfetch.fetch(url=bitlyUrl).content
             
-            tweet = "Compre em %s por R$%s" % (store, price)
+            tweet = "em %s por R$%s - %s" % (store, price, shortenedLink)
         except:
             logging.error("Erro ao processar a URL %s" % buscapeUrl)
         
