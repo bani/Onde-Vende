@@ -61,7 +61,8 @@ class MainHandler(webapp.RequestHandler):
             id = status["id"]
             user = "@"+status["user"]["screen_name"]+" "
             msg = self.getBestPrice(status["text"])
-            self.postTweet(id, user + msg)
+            if len(msg) > 1:
+                self.postTweet(id, user + msg)
             
         if statuses:
             lastTweet.tweetId = statuses[0]["id"]
@@ -96,14 +97,13 @@ class MainHandler(webapp.RequestHandler):
         return tweet
     
     def postTweet(self, id, tweet):
-        if len(tweet) > 1:
-            callback_url = "%s/verify" % self.request.host_url
-            client = oauth.TwitterClient(keys.application_key, keys.application_secret, 
-                callback_url)
-    
-            update_url = "http://twitter.com/statuses/update.xml"
-            client.make_request(url=update_url, token=keys.ondevende['user_token'], 
-            secret=keys.ondevende['user_secret'], additional_params={'in_reply_to_status_id': id,'status':tweet}, method=urlfetch.POST)
+        callback_url = "%s/verify" % self.request.host_url
+        client = oauth.TwitterClient(keys.application_key, keys.application_secret, 
+            callback_url)
+
+        update_url = "http://twitter.com/statuses/update.xml"
+        client.make_request(url=update_url, token=keys.ondevende['user_token'], 
+        secret=keys.ondevende['user_secret'], additional_params={'in_reply_to_status_id': id,'status':tweet}, method=urlfetch.POST)
 
 
 application = webapp.WSGIApplication(
